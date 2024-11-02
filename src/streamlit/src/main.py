@@ -1,5 +1,5 @@
 import streamlit as st
-
+import os
 from sidebar import setup as set_sidebar
 from langchain.chat_models import ChatOpenAI
 from langchain.agents.agent_toolkits import OpenAPIToolkit
