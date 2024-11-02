@@ -39,7 +39,11 @@ if check_all_config():
     #     openapi_url=spec_url,
     #     requests=requests_wrapper
     # )
-    openapi_toolkit = NLAToolkit.from_llm_and_url(llm, spec_url)
+    # openapi_toolkit = NLAToolkit.from_llm_and_url(llm, spec_url)
+    try:
+        openapi_toolkit = NLAToolkit.from_llm_and_url(llm, spec_url)
+    except ValueError as e:
+        st.error(f"Failed to load OpenAPI spec: {e}")
 
     agent_executor = initialize_agent(
         tools=openapi_toolkit.get_tools(),
