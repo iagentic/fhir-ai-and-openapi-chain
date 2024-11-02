@@ -21,10 +21,10 @@ st.write("FHIR Server details added:", st.session_state.get("FHIR_API_BASE_URL")
 
 if check_all_config():
     spec_url = get_spec_url()
-
+    os.environ["OPENAI_API_KEY"] = st.session_state.get("OPENAI_API_KEY")
     llm = ChatOpenAI(
-        model_name="gpt-3.5-turbo",
-        openai_api_key=st.session_state.get("OPENAI_API_KEY")
+        model="gpt-4o",
+        # openai_api_key=st.session_state.get("OPENAI_API_KEY")
     )
 
     headers = {

@@ -4,6 +4,7 @@ Utility functions
 
 import re
 import streamlit as st
+from langchain_community.tools.openapi.utils.openapi_utils import OpenAPISpec
 
 def clear_submit():
     """
