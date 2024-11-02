@@ -32,7 +32,7 @@ if check_all_config():
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": "true",
     }
-    requests_wrapper = RequestsWrapper(headers=headers)
+    # requests_wrapper = RequestsWrapper(headers=headers)
    
     # openapi_toolkit = OpenAPIToolkit.from_llm_and_url(
     #     llm=llm,
