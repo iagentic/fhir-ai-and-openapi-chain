@@ -2,12 +2,13 @@ import streamlit as st
 
 from sidebar import setup as set_sidebar
 from langchain.chat_models import ChatOpenAI
-from langchain_community.chains.openapi.chain import OpenAPIEndpointChain
-from langchain.requests import TextRequestsWrapper
+from langchain.agents.agent_toolkits import OpenAPIToolkit
+from langchain.agents import initialize_agent, AgentType
+from langchain.requests import RequestsWrapper
 
 from utils import (
     clear_submit,
-    paths_and_methods,
+    get_spec_url,
     set_logo_and_page_config,
     check_all_config
 )
@@ -15,11 +16,11 @@ from utils import (
 set_logo_and_page_config()
 set_sidebar()
 
-st.write("OpenAI API Key added:", st.session_state.get("OPENAI_API_KEY") != None)
-st.write("FHIR Server details added:", st.session_state.get("FHIR_API_BASE_URL") != None)
+st.write("OpenAI API Key added:", st.session_state.get("OPENAI_API_KEY") is not None)
+st.write("FHIR Server details added:", st.session_state.get("FHIR_API_BASE_URL") is not None)
 
 if check_all_config():
-    operation = paths_and_methods()
+    spec_url = get_spec_url()
 
     llm = ChatOpenAI(
         model_name="gpt-3.5-turbo",
@@ -30,11 +31,18 @@ if check_all_config():
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": "true",
     }
-    requests_wrapper = TextRequestsWrapper(headers=headers)
-    chain = OpenAPIEndpointChain.from_api_operation(
-        operation,
-        llm,
-        requests=requests_wrapper,
+    requests_wrapper = RequestsWrapper(headers=headers)
+
+    openapi_toolkit = OpenAPIToolkit.from_llm_and_url(
+        llm=llm,
+        openapi_url=spec_url,
+        requests=requests_wrapper
+    )
+
+    agent_executor = initialize_agent(
+        tools=openapi_toolkit.get_tools(),
+        llm=llm,
+        agent=AgentType.OPENAI_FUNCTIONS,
         verbose=True
     )
 
@@ -55,6 +63,9 @@ if check_all_config():
         else:
             st.session_state["submit"] = True
             with st.spinner(text="Searching..."):
-                result = chain(query)
-                st.write("#### Answer")
-                st.write(result["output"])
+                try:
+                    result = agent_executor.run(query)
+                    st.write("#### Answer")
+                    st.write(result)
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
