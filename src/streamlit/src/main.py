@@ -2,7 +2,8 @@ import streamlit as st
 import os
 from sidebar import setup as set_sidebar
 from langchain.chat_models import ChatOpenAI
-from langchain.agents.agent_toolkits import OpenAPIToolkit
+# from langchain.agents.agent_toolkits import OpenAPIToolkit
+from langchain_community.agent_toolkits import NLAToolkit
 from langchain.agents import initialize_agent, AgentType
 from langchain.requests import RequestsWrapper
 
@@ -32,12 +33,13 @@ if check_all_config():
         "Access-Control-Allow-Credentials": "true",
     }
     requests_wrapper = RequestsWrapper(headers=headers)
-
-    openapi_toolkit = OpenAPIToolkit.from_llm_and_url(
-        llm=llm,
-        openapi_url=spec_url,
-        requests=requests_wrapper
-    )
+   
+    # openapi_toolkit = OpenAPIToolkit.from_llm_and_url(
+    #     llm=llm,
+    #     openapi_url=spec_url,
+    #     requests=requests_wrapper
+    # )
+    openapi_toolkit = NLAToolkit.from_llm_and_url(llm, spec_url")
 
     agent_executor = initialize_agent(
         tools=openapi_toolkit.get_tools(),
