@@ -39,7 +39,7 @@ if check_all_config():
     #     openapi_url=spec_url,
     #     requests=requests_wrapper
     # )
-    openapi_toolkit = NLAToolkit.from_llm_and_url(llm, spec_url")
+    openapi_toolkit = NLAToolkit.from_llm_and_url(llm, spec_url)
 
     agent_executor = initialize_agent(
         tools=openapi_toolkit.get_tools(),
