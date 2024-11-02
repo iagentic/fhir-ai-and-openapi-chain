@@ -1,12 +1,9 @@
-"""
-FHIR - AI and OpenAPI Chain
-"""
-
 import streamlit as st
 
 from sidebar import setup as set_sidebar
-from langchain.llms import OpenAI
-from langchain.chains import OpenAPIEndpointChain
+from langchain.chat_models import ChatOpenAI
+from langchain_community.chains.openapi.chain import OpenAPIEndpointChain
+from langchain.requests import TextRequestsWrapper
 
 from utils import (
     clear_submit,
@@ -24,12 +21,29 @@ st.write("FHIR Server details added:", st.session_state.get("FHIR_API_BASE_URL")
 if check_all_config():
     operation = paths_and_methods()
 
-    llm = OpenAI(openai_api_key=st.session_state.get("OPENAI_API_KEY")) 
+    llm = ChatOpenAI(
+        model_name="gpt-3.5-turbo",
+        openai_api_key=st.session_state.get("OPENAI_API_KEY")
+    )
 
-    headers = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Credentials": "true", }
-    chain = OpenAPIEndpointChain.from_api_operation(operation,llm,headers=headers,verbose=True)
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+    }
+    requests_wrapper = TextRequestsWrapper(headers=headers)
+    chain = OpenAPIEndpointChain.from_api_operation(
+        operation,
+        llm,
+        requests=requests_wrapper,
+        verbose=True
+    )
 
-    query = st.text_area("Search Input", label_visibility="visible", placeholder="Ask anything...", on_change=clear_submit)
+    query = st.text_area(
+        "Search Input",
+        label_visibility="visible",
+        placeholder="Ask anything...",
+        on_change=clear_submit
+    )
 
     button = st.button("Search")
 
